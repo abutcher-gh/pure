@@ -119,12 +119,16 @@ prompt_pure_preprompt_render() {
 	local git_color=242
 	[[ -n ${prompt_pure_git_last_dirty_check_timestamp+x} ]] && git_color=red
 
+    local suspendedjobs=$#jobstates
+
 	# construct preprompt, beginning with path
 	local preprompt="%F{blue}%~%f"
 	# git info
 	preprompt+="%F{$git_color}${vcs_info_msg_0_}${prompt_pure_git_dirty}%f"
 	# git pull/push arrows
 	preprompt+="%F{cyan}${prompt_pure_git_arrows}%f"
+    # show number of jobs
+    [[ $suspendedjobs -gt 0 ]] && preprompt+=" %F{yellow}[${suspendedjobs}]%f"
 	# username and machine if applicable
 	preprompt+=$prompt_pure_username
 	# execution time
@@ -337,8 +341,8 @@ prompt_pure_check_git_arrows() {
 	setopt localoptions noshwordsplit
 	local arrows left=${1:-0} right=${2:-0}
 
-	(( right > 0 )) && arrows+=${PURE_GIT_DOWN_ARROW:-⇣}
-	(( left > 0 )) && arrows+=${PURE_GIT_UP_ARROW:-⇡}
+	(( right > 0 )) && arrows+="${right}${PURE_GIT_DOWN_ARROW:-⇣}"
+	(( left > 0 )) && arrows+="${left}${PURE_GIT_UP_ARROW:-⇡}"
 
 	[[ -n $arrows ]] || return
 	typeset -g REPLY=" $arrows"
